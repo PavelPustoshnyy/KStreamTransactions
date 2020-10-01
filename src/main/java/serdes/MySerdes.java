@@ -40,7 +40,7 @@ public class MySerdes {
     }
     static public final class TransactionSerde extends WrapperSerde<Transaction> {
         public TransactionSerde() {
-            super(new JsonPOJOSerializer(), new JsonPOJODeserializer());
+            super(new TransactionSerializer(), new TransactionDeserializer());
         }
     }
     static public final class StringSerde extends WrapperSerde<String> {
