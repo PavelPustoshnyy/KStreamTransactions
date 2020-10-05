@@ -41,6 +41,10 @@ public class Transaction {
         return builder;
     }
 
+    public static Builder newBuilder() {
+        return new Builder();
+    }
+
     public String GetClientPin() {
         return this.ClientPin;
     }
@@ -71,7 +75,7 @@ public class Transaction {
     @Override
     public int hashCode() {
         int result;
-        result = ClientPin != null ? ClientPin.hashCode() : 0;
+        result = ClientPin != null ?  ClientPin.hashCode() : 0;
         return result;
     }
 
