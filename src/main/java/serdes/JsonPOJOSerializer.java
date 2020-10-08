@@ -16,8 +16,7 @@ public class JsonPOJOSerializer<T> implements Serializer<T> {
     }
 
     @Override
-    public void configure(Map<String, ?> props, boolean isKey) {
-    }
+    public void configure(Map<String, ?> props, boolean isKey) { }
 
     @Override
     public byte[] serialize(String topic, T data) {

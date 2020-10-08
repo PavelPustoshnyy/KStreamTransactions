@@ -9,7 +9,8 @@ public class TransactionJoiner  implements ValueJoiner<Transaction, Transaction,
         CorrelatedTransaction.Builder builder = CorrelatedTransaction.newBuilder();
 
         String cafeUTime = cafe != null ? cafe.GetUTime() : null;
-        System.out.println(cafe!=null);
+        System.out.println(cafeUTime);
+        System.out.println(cafe.toString());
         Double cafeReqamt = cafe != null ? cafe.GetReqAmt() : 0.0;
         String cafeMerchant = cafe != null ? cafe.GetMerchant() : null;
 

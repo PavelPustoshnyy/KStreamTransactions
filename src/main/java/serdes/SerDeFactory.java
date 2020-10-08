@@ -1,11 +1,9 @@
-package serdes2;
+package serdes;
 
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.common.serialization.Serializer;
-import serdes.JsonPOJODeserializer;
-import serdes.JsonPOJOSerializer;
 
 import java.util.HashMap;
 import java.util.Map;

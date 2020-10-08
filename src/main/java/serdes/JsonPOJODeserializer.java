@@ -7,14 +7,16 @@ import org.apache.kafka.common.serialization.Deserializer;
 import java.util.Map;
 
 public class JsonPOJODeserializer<T> implements Deserializer<T> {
-    private ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     private Class<T> tClass;
 
     /**
      * Default constructor needed by Kafka
      */
-    public JsonPOJODeserializer() {
+    public JsonPOJODeserializer() {}
+    public JsonPOJODeserializer(Class<T> deserializedClass) {
+        this.tClass = deserializedClass;
     }
 
     @SuppressWarnings("unchecked")

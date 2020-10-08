@@ -33,7 +33,7 @@ public class CorrelatedTransaction {
 
     @Override
     public String toString() {
-        return "CorrelatedPurchase{" +
+        return "{" +
                 "\"CLIENTPIN\":\"" + ClientPin +
                 "\",\"CAFEREQAMT\":" + cafeReqAmt +
                 ",\"CAFEMERCHANT\":\"" + cafeMerchant +

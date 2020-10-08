@@ -14,6 +14,7 @@ public class Transaction {
 
     public Transaction(){}
 
+
     public Transaction(String ClientPin, Double ReqAmt, String Merchant, String UTime) {
         this.ClientPin=ClientPin;
         this.ReqAmt=ReqAmt;
