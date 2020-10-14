@@ -1,7 +1,9 @@
 package entity;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import org.apache.kafka.common.protocol.types.Field;
 
 import java.util.Objects;
 
@@ -13,7 +15,6 @@ public class Transaction {
     private String UTime;
 
     public Transaction(){}
-
 
     public Transaction(String ClientPin, Double ReqAmt, String Merchant, String UTime) {
         this.ClientPin=ClientPin;
@@ -28,10 +29,10 @@ public class Transaction {
         Merchant = builder.Merchant;
         UTime = builder.UTime;
     }
+
     public static Builder builder() {
         return new Builder();
     }
-
 
     public static Builder builder(Transaction copy) {
         Builder builder = new Builder();
@@ -42,35 +43,17 @@ public class Transaction {
         return builder;
     }
 
-    public static Builder newBuilder() {
-        return new Builder();
-    }
-
-    public String GetClientPin() {
-        return this.ClientPin;
-    }
-    public Double GetReqAmt() {
-        return this.ReqAmt;
-    }
-    public String GetMerchant() {
-        return this.Merchant;
-    }
-    public String GetUTime() {
-        return this.UTime;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Transaction)) return false;
 
         Transaction transaction = (Transaction) o;
-
-        if (ClientPin != transaction.ClientPin) return false;
         if (Double.compare(transaction.ReqAmt, ReqAmt) != 0) return false;
         if (Merchant != transaction.Merchant) return false;
         if (UTime != transaction.UTime) return false;
-        return true;
+        return (ClientPin != null ? ClientPin.equals(transaction.GetClientPin()) : transaction.GetClientPin()==null);
+
     }
 
     @Override
@@ -88,7 +71,6 @@ public class Transaction {
                 "\",\"UTIME\":\"" + UTime + "\"}";
     }
 
-
     public static final class Builder {
         private String ClientPin;
         private Double ReqAmt;
@@ -100,14 +82,14 @@ public class Transaction {
         private Builder() {
         }
 
-        public Builder ClientPin(String val) {
-            ClientPin = val;
+        public Builder maskPin(){
+            Objects.requireNonNull(this.ClientPin, "Client Pin can't be null");
+            this.ClientPin = CC_NUMBER_REPLACEMENT;
             return this;
         }
 
-        public Builder maskPin(){
-            Objects.requireNonNull(this.ClientPin, "Client Pin can't be null");
-            this.ClientPin = "xxxxxx";
+        public Builder ClientPin(String val) {
+            ClientPin = val;
             return this;
         }
 
@@ -127,9 +109,10 @@ public class Transaction {
         }
 
         public Transaction build() {
-            return new Transaction(this);
-        }
+            return new Transaction(this);}
     }
+
+
     @JsonAlias("CLIENTPIN")
     @JsonSetter("ClientPin")
     public void setClientPin(String clientPin) {
@@ -152,6 +135,30 @@ public class Transaction {
     @JsonSetter("UTime")
     public void setUTime(String UTime) {
         this.UTime=UTime;
+    }
+
+    @JsonAlias("CLIENTPIN")
+    @JsonGetter("ClientPin")
+    public String GetClientPin() {
+        return this.ClientPin;
+    }
+
+    @JsonAlias("REQAMT")
+    @JsonGetter("ReqAmt")
+    public Double GetReqAmt() {
+        return this.ReqAmt;
+    }
+
+    @JsonAlias("MERCHANT")
+    @JsonGetter("Merchant")
+    public String GetMerchant() {
+        return this.Merchant;
+    }
+
+    @JsonAlias("UTIME")
+    @JsonGetter("UTime")
+    public String GetUTime() {
+        return this.UTime;
     }
 
 

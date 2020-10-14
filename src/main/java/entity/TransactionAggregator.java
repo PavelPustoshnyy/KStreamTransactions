@@ -1,31 +1,55 @@
 package entity;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonSetter;
+
 public class TransactionAggregator {
-    //number of readings per window
     private String ClientPin;
-    private int count;
-    //sum of the given window
+    private Long count;
     private double sum;
-    //avgerage: computed one time per aggregator
-    private double avg;
     public TransactionAggregator() {}
 
-    public int GetCount() { return count;}
-    public double GetSum() {return  sum;}
-    public double GetAvg() {return  avg;}
-    public String GetClientPin() {return  ClientPin;}
-
-    public TransactionAggregator add(Transaction transaction) {
-        if(this.ClientPin == null){
-            this.ClientPin = transaction.GetClientPin();
-        }
-        this.count = this.count + 1;
-        this.sum = this.sum + transaction.GetReqAmt();
-        return this;
+    @JsonAlias("CLIENTPIN")
+    @JsonSetter("ClientPin")
+    public void setClientPin(String clientPin) {
+        this.ClientPin=clientPin;
     }
 
-    public TransactionAggregator computeAvgReqAmt(){
-        this.avg = this.sum/this.count;
-        return this;
+    @JsonAlias("CLIENTPIN")
+    @JsonGetter("ClientPin")
+    public String getClientPin() {
+        return this.ClientPin;
+    }
+
+    @JsonAlias("COUNT")
+    @JsonSetter("count")
+    public void setCount(Long newCount) {
+        this.count=newCount;
+    }
+
+    @JsonAlias("COUNT")
+    @JsonGetter("count")
+    public Long getCount() {
+        return this.count;
+    }
+
+    @JsonAlias("SUM")
+    @JsonSetter("sum")
+    public void setSum(Double newSum) {
+        this.sum=newSum;
+    }
+
+    @JsonAlias("SUM")
+    @JsonGetter("sum")
+    public Double getSum() {
+        return this.sum;
+    }
+
+    @Override
+    public String toString() {
+        return "{\"CLIENTPIN\":\"" + ClientPin +
+                "\",\"COUNT\":" + this.count +
+                ",\"SUM\":" + this.sum + "}";
     }
 }

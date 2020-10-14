@@ -1,7 +1,4 @@
-import entity.CorrelatedTransaction;
-import entity.Transaction;
-import entity.TransactionJoiner;
-import entity.TransactionTimestampExtractor;
+import entity.*;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
@@ -16,16 +13,18 @@ import java.util.Properties;
 
 public class TransactionStreamJoin {
     public static void main(String[] args) throws InterruptedException {
-        StreamsConfig streamsConfig = new StreamsConfig(getProperties());
+        Props props = new Props();
+        StreamsConfig streamsConfig = new StreamsConfig(props.getProperties());
         StreamsBuilder builder = new StreamsBuilder();
 
-
-        Serde<Transaction> transactionSerde = SerDeFactory.getPOJOSerde(Transaction.class);;
+        Serde<Transaction> transactionSerde = SerDeFactory.getPOJOSerde(Transaction.class);
+        Serde<CorrelatedTransaction> correlatedTransactionSerde = SerDeFactory.getPOJOSerde(CorrelatedTransaction.class);
         Serde<String> stringSerde = Serdes.String();
 
-        KeyValueMapper<String, Transaction, KeyValue<String,Transaction>> custIdCCMasking = (k, v) -> {
+        KeyValueMapper<String, Transaction, KeyValue<String,Transaction>> clientPinMasking = (k, v) -> {
+            String key = v.GetClientPin();
             Transaction masked = Transaction.builder(v).maskPin().build();
-            return new KeyValue<>(masked.GetClientPin(), masked);
+            return new KeyValue<>(key, masked);
         };
 
         Predicate<String, Transaction> isSupermarkets = (key, transaction) -> transaction.GetMerchant().equals("Supermarkets");
@@ -35,9 +34,15 @@ public class TransactionStreamJoin {
         int cafe = 1;
         String inTopic = "first_topic";
 
-        KStream<String, Transaction> transactionStream = builder.stream( inTopic, Consumed.with(Serdes.String(), transactionSerde)).map(custIdCCMasking);
+        KStream<String, Transaction> transactionStream = builder
+                .stream(inTopic, Consumed.with(Serdes.String(), transactionSerde))
+                .filter((key, transaction) -> transaction.GetReqAmt() <= 0)
+                ;
 
-        KStream<String, Transaction>[] branchesStream = transactionStream.selectKey((k,v)-> v.GetClientPin()).branch(isSupermarkets,isCafe);
+        KStream<String, Transaction>[] branchesStream = transactionStream
+                .selectKey((k,v)-> v.GetClientPin())
+                .map(clientPinMasking)
+                .branch(isSupermarkets,isCafe);
 
         KStream<String, Transaction> supermarketStream = branchesStream[supermarkets];
         KStream<String, Transaction> cafeStream = branchesStream[cafe];
@@ -53,33 +58,13 @@ public class TransactionStreamJoin {
                         transactionSerde));
 
         joinedKStream.print(Printed.<String, CorrelatedTransaction>toSysOut().withLabel("joined KStream"));
+        joinedKStream.to("coupons", Produced.with(stringSerde,correlatedTransactionSerde));
 
-        // used only to produce data for this application, not typical usage
-        //MockDataProducer.producePurchaseData();
 
-        //LOG.info("Starting Join Examples");
         KafkaStreams kafkaStreams = new KafkaStreams(builder.build(), streamsConfig);
         kafkaStreams.start();
         Thread.sleep(65000);
-        //LOG.info("Shutting down the Join Examples now");
         kafkaStreams.close();
-        //MockDataProducer.shutdown();
 
-    }
-    private static Properties getProperties() {
-        Properties props = new Properties();
-        props.put(StreamsConfig.APPLICATION_ID_CONFIG, "join_driver_application");
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, "join_driver_group");
-        props.put(ConsumerConfig.CLIENT_ID_CONFIG, "join_driver_client");
-        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
-        props.put(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, "5000");
-        props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
-        props.put(StreamsConfig.NUM_STREAM_THREADS_CONFIG, "1");
-        props.put(ConsumerConfig.METADATA_MAX_AGE_CONFIG, "10000");
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringDeserializer");
-        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringDeserializer");
-        props.put(StreamsConfig.REPLICATION_FACTOR_CONFIG, 1);
-        props.put(StreamsConfig.DEFAULT_TIMESTAMP_EXTRACTOR_CLASS_CONFIG, TransactionTimestampExtractor.class);
-        return props;
     }
 }
