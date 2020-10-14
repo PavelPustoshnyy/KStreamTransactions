@@ -14,7 +14,9 @@ import java.util.Properties;
 public class TransactionStreamJoin {
     public static void main(String[] args) throws InterruptedException {
         Props props = new Props();
-        StreamsConfig streamsConfig = new StreamsConfig(props.getProperties());
+        Properties p = props.getProperties();
+        p.put(StreamsConfig.APPLICATION_ID_CONFIG, "join_driver_application");
+        StreamsConfig streamsConfig = new StreamsConfig(p);
         StreamsBuilder builder = new StreamsBuilder();
 
         Serde<Transaction> transactionSerde = SerDeFactory.getPOJOSerde(Transaction.class);

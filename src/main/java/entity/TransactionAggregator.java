@@ -8,7 +8,11 @@ public class TransactionAggregator {
     private String ClientPin;
     private Long count;
     private double sum;
-    public TransactionAggregator() {}
+
+    public TransactionAggregator() {
+        this.count = 0L;
+        this.sum = 0.;
+    }
 
     @JsonAlias("CLIENTPIN")
     @JsonSetter("ClientPin")
@@ -52,4 +56,6 @@ public class TransactionAggregator {
                 "\",\"COUNT\":" + this.count +
                 ",\"SUM\":" + this.sum + "}";
     }
+
+
 }

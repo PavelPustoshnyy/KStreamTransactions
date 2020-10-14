@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
+import java.util.Objects;
+
 public class TransactionAggregation {
 
     private String ClientPin;
