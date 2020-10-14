@@ -57,15 +57,15 @@ public class TransactionStreamAggregation {
                 )
                 ;
 
-        //final KTable<String, TransactionAggregation> transactionAverage =
-        //        transactionCountAndSum.mapValues(value -> new TransactionAggregation(value.getClientPin(),
-        //                        value.getSum() / value.getCount()),
-        //               Materialized.with(stringSerde, transactionAggregationSerde));
+        final KTable<String, TransactionAggregation> transactionAverage =
+                transactionCountAndSum.mapValues(value -> new TransactionAggregation(value.getClientPin(),
+                                value.getSum() / value.getCount()),
+                       Materialized.with(stringSerde, transactionAggregationSerde));
 
         // persist the result in topic
-        //transactionAverage.toStream().print(Printed.<String, TransactionAggregation>toSysOut().withLabel("aggregated KStream"));
-        //transactionAverage.toStream().to("analytics", Produced.with(stringSerde,transactionAggregationSerde));
-        transactionCountAndSum.toStream().to("analytics", Produced.with(stringSerde,transactionAggregatorSerde));
+        transactionAverage.toStream().print(Printed.<String, TransactionAggregation>toSysOut().withLabel("aggregated KStream"));
+        transactionAverage.toStream().to("analytics", Produced.with(stringSerde,transactionAggregationSerde));
+        //transactionCountAndSum.toStream().to("analytics", Produced.with(stringSerde,transactionAggregatorSerde));
         KafkaStreams kafkaStreams = new KafkaStreams(streamsBuilder.build(),streamsConfig);
 //
         kafkaStreams.start();
